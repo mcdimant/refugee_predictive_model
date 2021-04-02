@@ -6,6 +6,8 @@ import geopy.distance
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, precision_score, recall_score
+import datetime as dt
+import seaborn as sns
 
 #read in and clean conflict data 
 conflict_df = pd.read_csv('../data/conflict_data_irq.csv')
@@ -70,13 +72,17 @@ out_df['Families'] = out_df['Families'].astype(int)
 out_df['Individuals'] = out_df['Individuals'].astype(int)
 out_df.rename(columns={'Place ID':'Place_ID'}, inplace=True)
 
-#renaming columns so it's clear that refugees are flowing OUT TO these governorates 
-out_df.rename(columns={'Anbar':'to_Anbar', 'Babylon':'to_Babylon', 'Baghdad':'to_Baghdad', 
-        'Basrah':'to_Basrah', 'Dahuk':'to_Dahuk','Diyala':'to_Diyala', 'Erbil':'to_Erbil',
-        'Kerbala':'to_Kerbala', 'Kirkuk':'to_Kirkuk', 'Missan':'to_Missan', 'Muthanna':'to_Muthana',              
-    'Najaf':'to_Najaf', 'Ninewa':'to_Ninewa', 'Qadissiya':'to_Qadissiya', 
-    'Salahal Din':'to_Salahal Din', 'Sulaymaniyah':'to_Sulaymaniyah', 'Thi Qar':'to_Thi Qar',
-       'Wassit':'to_Wassit'}, inplace=True)
+
+#renaming columns so it's clear that refugees are DISPLACED FROM these governorates of origin
+out_df.rename(columns={'Anbar':'disp_from_Anbar', 'Babylon':'disp_from_Babylon', 
+                       'Baghdad':'disp_from_Baghdad', 'Basrah':'disp_from_Basrah',
+                       'Dahuk':'disp_from_Dahuk','Diyala':'disp_from_Diyala',
+                       'Erbil':'disp_from_Erbil','Kerbala':'disp_from_Kerbala', 
+                       'Kirkuk':'disp_from_Kirkuk', 'Missan':'disp_from_Missan', 
+                       'Muthanna':'disp_from_Muthana','Najaf':'disp_from_Najaf', 
+                       'Ninewa':'disp_from_Ninewa', 'Qadissiya':'disp_from_Qadissiya', 
+                        'Salahal Din':'disp_from_Salahal Din', 'Sulaymaniyah':'disp_from_Sulaymaniyah', 
+                       'Thi Qar':'disp_from_Thi Qar', 'Wassit':'disp_from_Wassit'}, inplace=True)
 
 #making clear that these features represent the living situation of refugees who have fled their homes
 out_df.rename(columns={'Camp':'out_Camp', 'Hostfamilies':'out_Hostfamilies', 
@@ -89,8 +95,7 @@ out_df.rename(columns={'Camp':'out_Camp', 'Hostfamilies':'out_Hostfamilies',
 
 #reads in data on returning refugees, concatenates into large dataframe 
 returnee_filepaths = [f for f in listdir("../data/inflow/")]
-ret_df = pd.concat((pd.read_csv("../data/inflow/"+f)
-                  for f in returnee_filepaths), ignore_index=True)
+ret_df = pd.concat((pd.read_csv("../data/inflow/"+f) for f in returnee_filepaths), ignore_index=True)
 
 #renaming features to clarify that refugees are returning to this type of shelter
 ret_df.rename(columns={'Camp':'ret_camp',
@@ -104,13 +109,14 @@ ret_df.rename(columns={'Camp':'ret_camp',
        'Unfinished_Abandoned_building':'ret_Unfinished_Abandoned_building',
        'Unknown_shelter_type':'ret_Unknown_shelter_type'}, inplace=True)
 
-#renaming features to clarify that refugees are RETURNING FROM these governorates 
-ret_df.rename(columns={'Anbar':'from_Anbar', 'Babylon':'from_Babylon',
-       'Baghdad':'from_Baghdad', 'Basrah':'from_Basrah', 'Dahuk':'from_Dahuk',
-       'Diyala':'from_Diyala', 'Erbil':'from_Erbil', 'Kerbala':'from_Kerbala', 
-        'Kirkuk':'from_Kirkuk','Missan':'from_Missan', 'Muthanna':'from_Muthanna',
-        'Najaf':'from_Najaf', 'Ninewa':'from_Ninewa', 'Qadissiya':'from_Qadissiya', 
-        'Salahal Din':'from_Salahal Din'}, inplace=True)
+#renaming features to clarify that refugees are RETURNING (to their places of orogin)
+#FROM these governorates 
+ret_df.rename(columns={'Anbar':'ret_from_Anbar', 'Babylon':'ret_from_Babylon',
+       'Baghdad':'ret_from_Baghdad', 'Basrah':'ret_from_Basrah', 'Dahuk':'ret_from_Dahuk',
+       'Diyala':'ret_from_Diyala', 'Erbil':'ret_from_Erbil', 'Kerbala':'ret_from_Kerbala', 
+        'Kirkuk':'ret_from_Kirkuk','Missan':'ret_from_Missan', 'Muthanna':'ret_from_Muthanna',
+        'Najaf':'ret_from_Najaf', 'Ninewa':'ret_from_Ninewa', 'Qadissiya':'ret_from_Qadissiya', 
+        'Salahal Din':'ret_from_Salahal Din'}, inplace=True)
 
 #creating dictionary to standardize naming convention for wave of displacement
 displacement_dict = {'Pre June14 Period of displacement':'disp_preJun14',
@@ -158,6 +164,22 @@ for i in range(len(ret_df)):
     else:
         None
 
+#Displacement data is cumulative, so it's necessary to get the delta by date (i.e., on 1OCT2015, 25
+#households were [freshly] displaced, rather than as of 1OCT2015 100 households have been displaced )
+out_df.sort_values(['Location ID', 'date'], inplace=True)
+out_df.dropna(how='any', inplace=True)
+out_df['out_delta'] = out_df.groupby(['Location ID'])['Families'].transform(lambda x: x.diff()) 
+
+out_df.sort_values(['Location ID', 'date'], inplace=True)
+out_df.reset_index(inplace=True)
+out_df.drop(columns='index', axis=1, inplace=True)
+
+for i in range(len(out_df)):
+    if np.isnan(out_df.at[i, 'out_delta']):
+        out_df.at[i, 'out_delta'] = out_df.at[i, 'Families']
+    else:
+        None
+
 #merging returnee and outflow data
 master_df = ret_df.merge(out_df, how='outer', on=['Location ID', 'date', 'Governorate',
                                                  'District', 'Place_ID', 'Location_name',
@@ -166,22 +188,23 @@ master_df = ret_df.merge(out_df, how='outer', on=['Location ID', 'date', 'Govern
                                                 'disp_postMar16', 'disp_post17Oct16', 
                                                   'disp_Jul17', 'disp_Jan19'])
 
-master_df.rename(columns={'Families':'outflow', 'ret_delta':'inflow'}, inplace=True)
+master_df.rename(columns={'Families':'displaced_to', 'ret_delta':'returned_to'}, inplace=True)
 
 #dropping irrelevant columns and those that would imply leakage from the test data
 master_df.drop(columns=['Unnamed: 0_x', 'Latitude_x', 'Longitude_x', 'Latitude_y', 'Longitude_y',
                        'Unnamed: 0_y', 'Arabic_name', 'Governorate',
                         'Location_name', 'Returnee Individuals', 'Returnee Families',
-                        'Arabic Name', 'from_Anbar', 'from_Babylon', 'from_Baghdad',
-       'from_Basrah', 'from_Dahuk', 'from_Diyala', 'from_Erbil',
-       'from_Kerbala', 'from_Kirkuk', 'from_Missan', 'from_Muthanna',
-       'from_Najaf', 'from_Ninewa', 'from_Qadissiya', 'from_Salahal Din',
-       'Sulaymaniyah', 'Thi Qar', 'Wassit', 'ret_camp', 'Individuals',
+                        'Arabic Name', 'ret_from_Anbar', 'ret_from_Babylon', 'ret_from_Baghdad',
+       'ret_from_Basrah', 'ret_from_Dahuk', 'ret_from_Diyala', 'ret_from_Erbil',
+       'ret_from_Kerbala', 'ret_from_Kirkuk', 'ret_from_Missan', 'ret_from_Muthanna',
+       'ret_from_Najaf', 'ret_from_Ninewa', 'ret_from_Qadissiya', 'ret_from_Salahal Din',
+    'ret_camp', 'Individuals',
        'ret_Habitual Pre_31_October2018', 'ret_Habitual Residence (Habitable)',
        'ret_Habitual Residence (Uninhabitable)', 'ret_Host_families',
        'ret_Hotel_Motel', 'ret_Informal_settlements', 'ret_Other',
        'ret_Religious_building', 'ret_Rented_houses', 'ret_School_building', 'Place_ID',
-       'ret_Unfinished_Abandoned_building', 'ret_Unknown_shelter_type', 'Location ID'], inplace=True)
+       'ret_Unfinished_Abandoned_building', 'ret_Unknown_shelter_type', 'Location ID', 
+                       'Sulaymaniyah', 'Thi Qar', 'Wassit'], inplace=True)
 
 #making date ordinal so it can fit into the X dataset for ML algorithms 
 master_df['date'] = master_df['date'].apply(lambda x: x.toordinal())
@@ -244,9 +267,14 @@ for n in num_features:
         rf = RandomForestRegressor(max_features=n)
         rf.fit(X_train, y_train)
         tot += rf.score(X_test, y_test)
+        print('done with {a} of 5 of round {b}'.format(a=i, b=n))
     accuracies.append(tot / 5)
 fig, ax = plt.subplots(figsize=(8, 6))
 ax.plot(num_features, accuracies)
 ax.set_xlabel("Number of Features")
 ax.set_ylabel("Score")
 ax.set_title('Score vs. Num Features')
+plt.savefig('../images/features_vs_score.png')
+
+#plots receiver operator characteristic curve 
+plot_roc(X, y, RandomForestClassifier, 'Random_Forest', n_estimators=40, max_features=5)
