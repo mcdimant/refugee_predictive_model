@@ -6,7 +6,7 @@ Displacement of populations during a military crisis is of major interest to hum
 
 ## Data sources
 
-### Data on IDP outflows
+### Data on IDP (Internally Displaced Person) outflows
 The International Organization for Migration (IOM) has [extensive data tracking Iraqi IDP movements](http://iraqdtm.iom.int/). Specifically, this project used data on outgoing population flows that divided movements into roughly temporal displacement waves connected to military or political upheaval, i.e., "June 2016". Each row represented the location of origin for households, the distribution of households by current location at the Governorate level (roughly analagous to US State), distribution of households by shelter type, and date. 
 
 ### Data on IDP returns
@@ -24,10 +24,10 @@ A significant amount of cleanup was necessary, particularly to standardize diffe
 ## Machine Learning Analysis and Results
 A Random Forest Regressor was chosen owing to the algorithm's power, flexibility (number of hyperparameters), and interpretability. 
 
-### Features
-* **displaced_to:** The total number of households arriving at a location on a certain date. (May be negative in cases when households leave a location; does not imply that that household has returned to its place of origin)
+### Features (44 total)
+* **displaced_to_(Governorate):** The total number of households arriving at a location on a certain date. (May be negative in cases when households leave a location; does not imply that that household has returned to its place of origin)
 * **est_death:** The estimated number of deaths from violent conflict in a place of origin on a certain date
-* **disp_from_(Governorate):** The number of households originating in a specific Governorate (i.e., 25 households come from Anbar, 20 from Basrah)
+* **displaced_from_(Governorate):** The number of households originating in a specific Governorate (i.e., 25 households come from Anbar, 20 from Basrah)
 * **out_(shelter_type):** The number of households in 13 specific types of shelter (i.e., camp, host family, informal settlement, school building, religious building, etc. )
 * **date:** The date on which an event (displacement, return, deaths) took place; converted from datetime to ordinal values for analysis. 
 
