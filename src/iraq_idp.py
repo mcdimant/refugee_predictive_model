@@ -15,6 +15,8 @@ conflict_df.drop(0, inplace=True)
 conflict_df['date_start'] = pd.to_datetime(conflict_df['date_start'])
 conflict_df['date_end'] = pd.to_datetime(conflict_df['date_start'])
 
+print('read in conflict data')
+
 #creating dictionary to standardize governorate names across datasets
 governorate_dict = {'Al Anbār province':'Anbar', 'Nīnawá province':'Ninewa',
 'Baghdād province':'Baghdad','Dahūk province':'Dahuk', 'Diyālá province':'Diyala','Kirkūk province':'Kirkuk',
@@ -63,6 +65,8 @@ outflow_filepaths = [s for s in listdir("../data/out/")]
 out_df = pd.concat((pd.read_csv("../data/out/"+s) for s in outflow_filepaths), ignore_index=True) 
 out_df.dropna(how='any', inplace=True)
 
+print('read in out_df data')
+
 #cleanup of data types 
 out_df['date'] = pd.to_datetime(out_df['date'])
 out_df.rename(columns={'Location Name':'Location_name'}, inplace=True)
@@ -96,6 +100,8 @@ out_df.rename(columns={'Camp':'out_Camp', 'Hostfamilies':'out_Hostfamilies',
 #reads in data on returning refugees, concatenates into large dataframe 
 returnee_filepaths = [f for f in listdir("../data/inflow/")]
 ret_df = pd.concat((pd.read_csv("../data/inflow/"+f) for f in returnee_filepaths), ignore_index=True)
+
+print('read in ret_df data')
 
 #renaming features to clarify that refugees are returning to this type of shelter
 ret_df.rename(columns={'Camp':'ret_camp',
@@ -180,6 +186,7 @@ for i in range(len(out_df)):
     else:
         None
 
+print('dont cleaning data')
 #merging returnee and outflow data
 master_df = ret_df.merge(out_df, how='outer', on=['Location ID', 'date', 'Governorate',
                                                  'District', 'Place_ID', 'Location_name',
@@ -230,6 +237,8 @@ master_df = master_df.merge(g_conflict, how='left', on=['date', 'District'])
 master_df = master_df.fillna(0)
 master_df.drop(columns=['District'], inplace=True)
 
+print('done setting up X,y for RF')
+
 #setting up X and y for supervised learning algorithms 
 X = master_df.drop(columns=['inflow'])
 y = master_df['inflow']
@@ -258,6 +267,7 @@ ax.set_ylabel("RF Regressor Score")
 ax.set_title('RF Regressor Score vs. Num Trees')
 plt.savefig('../images/numtrees_vs_score.png')
 
+print('done with tree num vs score chart')
 #hyper parameter tuning: builds feature num vs. score chart
 num_features = range(1, len(X.columns) + 1)
 accuracies = []
@@ -275,6 +285,3 @@ ax.set_xlabel("Number of Features")
 ax.set_ylabel("Score")
 ax.set_title('Score vs. Num Features')
 plt.savefig('../images/features_vs_score.png')
-
-#plots receiver operator characteristic curve 
-plot_roc(X, y, RandomForestClassifier, 'Random_Forest', n_estimators=40, max_features=5)
