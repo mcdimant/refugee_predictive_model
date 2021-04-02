@@ -17,7 +17,15 @@ This
 This project integrated a dataset of geolocated data on violent events collected as part of [Uppsala University's Conflict Data Program](https://ucdp.uu.se/country/645). I decided to integrate this data because violence may precipitate population movement and the lack of violence (following displacement) may herald the return of IDPs. 
 
 ## Data Cleanup
-A significant amount of cleanup was necessary, particularly to standardize different spellings of Arabic locations. 
+A significant amount of cleanup was necessary, particularly to standardize different spellings of Arabic locations. Additionally, data from IOM took the form of hundreds of .xslx spreadsheets, so I wrote a script that converted them to csv's for faster concatenation in pandas. 
 
 ## Machine Learning Analysis and Results
 
+
+### Hyperparameter Tuning
+
+* Number of Trees vs. Score
+![](images/numtrees_vs_score.png)
+
+* Number of Features vs. Score
+![](images/)
