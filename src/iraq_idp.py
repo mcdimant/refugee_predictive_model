@@ -185,7 +185,7 @@ for i in range(len(out_df)):
     else:
         None
 
-print('dont cleaning data')
+print('done cleaning data')
 #merging returnee and outflow data
 master_df = ret_df.merge(out_df, how='outer', on=['Location ID', 'date', 'Governorate',
                                                  'District', 'Place_ID', 'Location_name',
@@ -239,8 +239,8 @@ master_df.drop(columns=['District'], inplace=True)
 print('done setting up X,y for RF')
 
 #setting up X and y for supervised learning algorithms 
-X = master_df.drop(columns=['inflow'])
-y = master_df['inflow']
+X = master_df.drop(columns=['returned_to'])
+y = master_df['returned_to']
 X_train, X_test, y_train, y_test = train_test_split(X, y)
 
 rf = RandomForestRegressor()
