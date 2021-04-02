@@ -22,13 +22,13 @@ A significant amount of cleanup was necessary, particularly to standardize diffe
 A Random Forest Regressor was chosen owing to the algorithm's power, flexibility (number of hyperparameters), and interpretability. 
 
 ### Features
-* outflow: The total number of households leaving a place of origin on a certain date
+* displace_to: The total number of households arriving at a location on a certain date. (May be negative in cases when households leave a location; does not imply that that household has returned to its place of origin)
 * est_death: The estimated number of deaths from violent conflict in a place of origin on a certain date
-* to_(Governorate): The number of households currently in 19 Iraqi governorates 
+* disp_from_(Governorate): The number of households originating in a specific Governorate (i.e., 25 households come from Anbar, 20 from Basrah)
 * out_(shelter_type): The number of households in 13 specific types of shelter (i.e., camp, host family, informal settlement, school building, religious building, etc. )
 
 ### Default, first-pass
-When the Random Forest regressor is run without any hyperparameter tuning, the score (R^2) is .8636
+When the Random Forest regressor is run without any hyperparameter tuning, the score (R^2) is .9109
 
 ### Hyperparameter Tuning
 
