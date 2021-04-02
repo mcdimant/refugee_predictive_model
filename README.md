@@ -25,10 +25,11 @@ A significant amount of cleanup was necessary, particularly to standardize diffe
 A Random Forest Regressor was chosen owing to the algorithm's power, flexibility (number of hyperparameters), and interpretability. 
 
 ### Features
-* displace_to: The total number of households arriving at a location on a certain date. (May be negative in cases when households leave a location; does not imply that that household has returned to its place of origin)
-* est_death: The estimated number of deaths from violent conflict in a place of origin on a certain date
-* disp_from_(Governorate): The number of households originating in a specific Governorate (i.e., 25 households come from Anbar, 20 from Basrah)
-* out_(shelter_type): The number of households in 13 specific types of shelter (i.e., camp, host family, informal settlement, school building, religious building, etc. )
+* **displaced_to:** The total number of households arriving at a location on a certain date. (May be negative in cases when households leave a location; does not imply that that household has returned to its place of origin)
+* **est_death:** The estimated number of deaths from violent conflict in a place of origin on a certain date
+* **disp_from_(Governorate):** The number of households originating in a specific Governorate (i.e., 25 households come from Anbar, 20 from Basrah)
+* **out_(shelter_type):** The number of households in 13 specific types of shelter (i.e., camp, host family, informal settlement, school building, religious building, etc. )
+* **date:** The date on which an event (displacement, return, deaths) took place; converted from datetime to ordinal values for analysis. 
 
 ### Default, first-pass
 When the Random Forest regressor is run without any hyperparameter tuning, the score (R^2) is .8263 with an Out of Bag error score of .8476, suggesting there's low indiciation of overfitting the data. 
