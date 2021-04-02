@@ -12,6 +12,9 @@ The International Organization for Migration (IOM) has [extensive data tracking 
 ### Data on IDP returns
 The data on IDP returns also came from IOM and had a similar shape. However, each row represented the cumulative number of households returning to a specific place of origin, along with the distribution of which governorates they came from, what type of shelter they have in their place of origin, and the date. 
 
+* Image of migrant outflows and returns over time:
+![](images/dtm_screenshot.png)
+
 ### Data on Violent Events
 This project integrated a dataset of geolocated data on violent events collected as part of [Uppsala University's Conflict Data Program](https://ucdp.uu.se/country/645). I decided to integrate this data because violence may precipitate population movement and the lack of violence (following displacement) may herald the return of IDPs. 
 
@@ -28,7 +31,7 @@ A Random Forest Regressor was chosen owing to the algorithm's power, flexibility
 * out_(shelter_type): The number of households in 13 specific types of shelter (i.e., camp, host family, informal settlement, school building, religious building, etc. )
 
 ### Default, first-pass
-When the Random Forest regressor is run without any hyperparameter tuning, the score (R^2) is .9109
+When the Random Forest regressor is run without any hyperparameter tuning, the score (R^2) is .8263 with an Out of Bag error score of .8476, suggesting there's low indiciation of overfitting the data. 
 
 ### Hyperparameter Tuning
 
@@ -41,3 +44,5 @@ The optimal number of trees is around 40.
 The optimal number of features-per-split is about 25. 
 
 ![](images/features_vs_score.png)
+
+### Interpretation
