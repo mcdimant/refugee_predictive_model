@@ -42,8 +42,20 @@ The optimal number of trees is around 40.
 ![](images/numtrees_vs_score.png)
 
 * Number of Features vs. Score
-The optimal number of features-per-split is about 25. 
+The optimal number of features-per-split is about 25. I used an EC2 instance to process this more quickly than my local machine: 
 
 ![](images/features_vs_score.png)
 
 ### Interpretation
+
+Feature "importance" was gauged for the top 10 features below:
+
+![](images/feature_importances.png)
+
+It is interesting that the date and waves of displacement were the most "important" features, rather than "estimated deaths". It could be that the the way this data was read in to the dataframe (at the district level) did not translate into a feature with significant predictive value. 
+
+## Further Exploration
+Areas for further exploration: 
+* More careful integration of event data at a more granular level
+* Classification algorithms of which governorate/distict IDP's go to 
+* Statistics on average length of displacement by wave of migration (difficult to get at with the data as it currently is, which is not at the household level)
