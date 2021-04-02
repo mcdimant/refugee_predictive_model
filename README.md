@@ -38,4 +38,6 @@ The optimal number of trees is around 40.
 ![](images/numtrees_vs_score.png)
 
 * Number of Features vs. Score
-The optimal number of features-per-split is 
+The optimal number of features-per-split is about 25. 
+
+![](images/features_vs_score.png)
